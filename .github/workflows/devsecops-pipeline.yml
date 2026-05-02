@@ -11,23 +11,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Secret Scanning (TruffleHog)
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
-          extra_args: --only-verified
+          extra_args: --debug
 
       - name: Static Analysis (Semgrep)
         uses: returntocorp/semgrep-action@v1
         with:
           config: .semgrep.yml
 
-      - name: Dependency Check (Snyk or Safety)
+      - name: Dependency Check (Safety)
         run: |
           pip install safety
           safety check -r requirements.txt --json > dependency-report.json
-        continue-on-error: true
+        continue-on-error: true 
 
       - name: Upload Security Reports
         uses: actions/upload-artifact@v4
@@ -60,9 +62,8 @@ jobs:
           exit-code: '1'
           severity: 'CRITICAL,HIGH'
 
-      - name: Upload Build Artifacts (SBOM & Image Tag)
+      - name: Upload Build Artifacts (SBOM)
         uses: actions/upload-artifact@v4
         with:
           name: trusted-build-bundle
-          path: |
-            app-sbom.cyclonedx.json
+          path: app-sbom.cyclonedx.json
