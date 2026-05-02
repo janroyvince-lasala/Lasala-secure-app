@@ -1,0 +1,6 @@
+rules:
+  - id: flask-debug-enabled
+    pattern: "app.run(..., debug=True)"
+    message: "Flask debug mode detected. This can lead to RCE."
+    languages: [python]
+    severity: ERROR
